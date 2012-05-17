@@ -1,0 +1,41 @@
+{
+   "abstract" : "Human readable date periods",
+   "author" : [
+      "Peter Stuifzand <peter@stuifzand.eu>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.120630",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Date-Period-Human",
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.38"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Date::Calc" : "0"
+         }
+      }
+   },
+   "provides" : {
+      "Date::Period::Human" : {
+         "file" : "lib/Date/Period/Human.pm",
+         "version" : "v0.4.2"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ]
+   },
+   "version" : "v0.4.2"
+}

@@ -3,9 +3,9 @@ use strict;
 use warnings;
 use Carp;
 
-use Date::Calc qw/Delta_DHMS Today_and_Now/;
+use Date::Calc qw/Delta_DHMS Today_and_Now N_Delta_YMDHMS/;
 
-our $VERSION='0.3.0';
+our $VERSION='0.4.2';
 
 sub new {
     my ($klass, $args) = @_;
@@ -26,20 +26,45 @@ sub _parse_mysql_date {
     croak "Not a MySQL date: [$mysql_date]";
 }
 
+sub _get_date_parts {
+    my ($self, $date) = @_;
+    if (ref($date)) {
+        return ($date->year, $date->month, $date->day, $date->hour, $date->minute, $date->second);
+    }
+    return _parse_mysql_date($date);
+}
+
 sub human_readable {
     my ($self, $date) = @_;
 
-    my (@date) = _parse_mysql_date($date);
+    my (@date) = $self->_get_date_parts($date);
 
     my @now = ref($self->{today_and_now}) eq 'ARRAY' ? @{$self->{today_and_now}} : ();
 
     if (!@now) {
         @now = Today_and_Now(0);
     }
-    my ($Dd,$Dh,$Dm,$Ds) = Delta_DHMS(@date,@now);
+    my ($Dy, $DM, $Dd,$Dh,$Dm,$Ds) = N_Delta_YMDHMS(@date,@now);
 
-    if ($Dd > 10) {
-        return $date[2] . '-' . $date[1] . '-' . $date[0];
+    if ($Dy == 1) {
+        return $self->_translate('time_a_year_ago');
+    }
+    elsif ($Dy > 1) {
+        return $self->_translate('time_years_ago', $Dy);
+    }
+    elsif ($DM == 1) {
+        return $self->_translate('time_a_month_ago');
+    }
+    elsif ($DM > 1) {
+        return $self->_translate('time_months_ago', $DM);
+    }
+    elsif ($Dd >= 7) {
+        if (int($Dd / 7) == 1) {
+            return $self->_translate('time_a_week_ago', 1);
+        }
+        if (int $Dd / 7 > 1) {
+            return $self->_translate('time_weeks_ago', int($Dd / 7));
+        }
     }
     elsif ($Dd > 1) {
         return $self->_translate('time_num_days_ago', $Dd);
@@ -69,7 +94,28 @@ sub _translate {
     my ($self, $key, @values) = @_;
 
     my %translation = (
+        de => {
+            time_months_ago             => 'vor %d Monaten',
+            time_a_month_ago            => 'vor einem Monat',
+            time_years_ago              => 'vor %d Jahren',
+            time_a_year_ago             => 'vor einem Jahr',
+            time_weeks_ago              => 'vor %d Wochen',
+            time_a_week_ago             => 'vor einer Woche',
+            time_num_days_ago           => 'vor %d Tagen',
+            time_yesterday_at           => 'Gestern um %02d:%02d',
+            time_hour_min_ago           => 'vor %d Stunden %d Minuten',
+            time_minute_ago             => 'vor %d Minute',
+            time_minutes_ago            => 'vor %d Minuten',
+            time_less_than_minute_ago   => 'vor weniger als einer Minute',
+            time_just_now               => 'gerade eben',
+        },
         nl => {
+            time_months_ago             => '%d maanden geleden',
+            time_a_month_ago            => 'een maand geleden',
+            time_years_ago              => '%d jaar geleden',
+            time_a_year_ago             => 'een jaar geleden',
+            time_a_week_ago             => 'een week geleden',
+            time_weeks_ago              => '%d weken geleden',
             time_num_days_ago           => '%d dagen geleden',
             time_yesterday_at           => 'gisteren om %02d:%02d',
             time_hour_min_ago           => '%d uur %d minuten geleden',
@@ -79,6 +125,12 @@ sub _translate {
             time_just_now               => 'net precies',
         },
         en => {
+            time_months_ago             => '%d months ago',
+            time_a_month_ago            => 'a month ago',
+            time_years_ago              => '%d years ago',
+            time_a_year_ago             => 'a year ago',
+            time_a_week_ago             => 'a week ago',
+            time_weeks_ago              => '%d weeks ago',
             time_num_days_ago           => '%d days ago',
             time_yesterday_at           => 'yesterday at %02d:%02d',
             time_hour_min_ago           => '%d hour %d minutes ago',
@@ -144,9 +196,11 @@ Will be used as the fixed point from which the relative time will be calculated.
 
 This class contains one public method.
 
-=head2 $self->human_readable($mysql_date)
+=head2 $self->human_readable($mysql_date|$datetime)
 
 Parses the $mysql_date and returns a human readable time string.
+
+Or, $datetime (a DateTime object) and returns a human readable time string.
 
 =head1 HOMEPAGE
 
