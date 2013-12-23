@@ -2,11 +2,14 @@
 abstract: 'Human readable date periods'
 author:
   - 'Peter Stuifzand <peter@stuifzand.eu>'
-build_requires: {}
+build_requires:
+  DateTime::Format::MySQL: 0
+  Test::Exception: 0
+  Test::More: 0.88
 configure_requires:
-  Module::Build::Tiny: 0.025
+  Module::Build::Tiny: 0.030
 dynamic_config: 0
-generated_by: 'Dist::Milla version v0.9.7, Dist::Zilla version 4.300032, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Dist::Milla version v1.0.3, Dist::Zilla version 4.300035, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -22,11 +25,11 @@ no_index:
     - examples
 requires:
   Date::Calc: 0
-  DateTime::Format::MySQL: 0
 resources:
   bugtracker: https://github.com/pstuifzand/date-period-human/issues
   homepage: https://github.com/pstuifzand/date-period-human
   repository: https://github.com/pstuifzand/date-period-human.git
-version: 0.4.3
+version: 0.4.4
 x_contributors:
+  - 'MAJESTIC <majestic@cpan.org>'
   - 'Peter Stuifzand <peter.stuifzand@gmail.com>'
